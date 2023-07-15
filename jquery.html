@@ -1,0 +1,187 @@
+<!-- 
+Instructions:
+Create a page like in the attached video. 
+
+There is a sports variable in the <script> that consist array of object.
+The object contains the information of the sport.
+
+Follow the instruction below:
+1. Radio buttons for user to select a sport. Add question "What do you want to do for sport activity today?"
+2. A box that represent what sport the user choosen. 
+3. On selecting the radio button, change the background color of the box to bg_color of selected sport.
+4. Animate "box Me" to move to selected sport box.
+5. Display the selected sport name below the box.
+6. Display list of equipments for the selected sport below the selected sport name text.
+
+In this file, you will find jQuery and Vue script that's commented.
+You have to do it using vanilla javascript and jquery.
+If you can do it using Vue js, is a plus.
+
+Create new file for each solution (vanilla js, jquery, vue).
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Test</title>
+
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple-v1.css">
+</head>
+
+<body>
+    <style>
+        .box{
+            padding: 15px 30px;
+            border: thin solid var(--border);
+            display: inline-block;
+            max-width: 100px;
+            width: 100px;
+            text-align: center;
+            background-color: white;
+            position: absolute;
+            margin: 30px;
+            transition: all .3s ease;
+        }
+        #me{
+            background: #212121;
+            color: white;
+            z-index: 1;
+        }
+        
+        .me{
+            left: 35%;
+            top: 35%;
+        }
+        .box.position-1{
+            left: 0;
+            top: 0;
+        }
+        .box.position-2{
+            left: 70%;
+            top: 0;
+        }
+        .box.position-3{
+            left: 35%;
+            top: 70%;
+        }
+        .btn{
+            margin-right: 10px;
+            background-color: var(--text-light);
+        }
+        .btn.active{
+            background-color: var(--accent);
+        }
+        #box{
+            margin: 15px 0;
+            width: 100%;
+            height: 400px;
+            position: relative;
+            border: thin solid var(--border);
+            background-color: white;
+            transition: background-color .3s ease;
+        }
+        p{
+            margin-bottom: 5px;
+        }
+    </style>
+    
+    <div id="app"></div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script>
+        const $app = $('#app')
+        const sports = [
+            {
+                name: 'Football',
+                bg_color: '#6bb46e',
+                equipments: ['Ball', 'Football Shoes', 'Goalpost']
+            },
+            {
+                name: 'Volleyball',
+                bg_color: '#c30f42',
+                equipments: ['Ball', 'Nets']
+            },
+            {
+                name: 'Badminton',
+                bg_color: '#2a82be',
+                equipments: ['Shuttlecock', 'Nets', 'Racket']
+            }
+        ];
+
+        function init(){
+            const baseTemplate = `
+                <div class="header">
+                    <p>What do you want to do for sport activity today?</p>
+                    <div id="buttons"></div>
+                </div>
+                <div id="box">
+                    <div class="box me" id="me">Me</div>
+                </div>
+                <div class="text">
+                    <p>
+                        Select Sport: <span id="selected-sport">-</span>
+                    </p>
+                    <p>
+                        <div>Equipments: </div>
+                        <ul id="reqs">-</ul>
+                    </p>
+                </div>
+            `
+            $app.html(baseTemplate)
+            const $box           = $app.find('#box')
+            const $buttons       = $app.find('#buttons')
+
+            $.each(sports, (key, val) => {
+                const buttonsTemplate = `<button type="button" class="btn" id="${val.name}">${val.name}</button>`
+                $buttons.append(buttonsTemplate)
+
+                const boxContentTemplate = `<div class="box position-${key+1}" data-position="position-${key+1}" data-target="${val.name}">${val.name}</div>`
+                $box.append(boxContentTemplate)
+
+                selectSport(key, val.name)
+            })
+        }
+
+        function selectSport(key, id){
+            const selectedData   = sports[key]
+            const $selectedSport = $app.find('#selected-sport')
+            const $reqs          = $app.find('#reqs')
+            const $box           = $app.find('#box')
+            const $me            = $app.find('#me')
+            
+            $(`#${id}`).on('click', function(){
+                // set button active
+                $('.btn').removeClass('active')
+                $(this).addClass('active')
+
+                // render selected button value
+                $selectedSport.text(selectedData.name)
+
+                // render selected reqs
+                $reqs.html()
+                let reqsTemplate = []
+                $.each(selectedData.equipments, (key, val) => {
+                    reqsTemplate.push(`<li>${val}</li>`)
+                })
+                $reqs.html(reqsTemplate)
+
+                // change box background
+                $box.css('background-color', selectedData.bg_color)
+
+                // box transition
+                const getTarget = $box.find(`[data-target="${id}"]`).data('position')
+                const pos = $(`.${getTarget}`).position()
+                $('#me').css(pos)
+            })
+        }
+
+        // initialize DOM
+        init()
+    </script>
+</body>
+
+</html>
